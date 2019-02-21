@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>净值</title>
+    <style>
+        #all {margin-left: auto; margin-right: auto; width: 900px;}
+        .code {text-align: center; width: 60px;}
+        .name {text-align: left; width: 270px; padding-left: 10px;}
+        .value {text-align: center; width: 60px;}
+        .predict {text-align: center; width: 60px;}
+        .threshold {text-align: center; width: 60px;}
+        .diff {text-align: center; width: 60px;}
+        .percent {text-align: center; width: 60px;}
+        .tactics {text-align: left; width: 240px;}
+        .red {color: red;}
+        .gray {color: gray;}
+        .green {color: green;}
+    </style>
+</head>
+<body>
+<table id="all">
+    <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>净值</th>
+        <th>估值</th>
+        <th>阀值</th>
+        <th>差值</th>
+        <th>百分比</th>
+        <th>策略</th>
+    </tr>
+    {% for item in data %}
+        <tr>
+            <td class="code">{{ item.code }}</td>
+            <td class="name">{{ item.name }}</td>
+            <td class="value">{{ item.yesterday }}</td>
+            <td class="predict">{{ item.predict }}</td>
+            <td class="threshold">{{ item.threshold }}</td>
+            {% if item.diff > 0 %}
+                <td class="diff red">{{ item.diff }}</td>
+            {% elif item.diff == 0 %}
+                <td class="diff gray">{{ item.diff }}</td>
+            {% else %}
+                <td class="diff green">{{ item.diff }}</td>
+            {% endif %}
+            {% if item.diff > 0 %}
+                <td class="percent red">{{ item.percent }}%</td>
+            {% elif item.diff == 0 %}
+                <td class="percent gray">{{ item.percent }}%</td>
+            {% else %}
+                <td class="percent green">{{ item.percent }}%</td>
+            {% endif %}
+            <td class="tactics">{{ item.tactics }}</td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
