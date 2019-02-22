@@ -10,6 +10,8 @@ bp = Blueprint('items', __name__, url_prefix='/items')
 
 @bp.route('/focus')
 def list_focused():
+    codes = ['100032', '160106', '257070', '000942', '000059', '003318', '000478', '164906', '161725', '161720',
+             '001551', '004070', '001553', '000248', '000311', '001632', '002979', '161022', '310398']
     funds = {
         '100032': {'expect': 0.98, 'tactics': u'长期'},
         '160106': {'expect': 0.86, 'tactics': u'长期'},
@@ -33,7 +35,8 @@ def list_focused():
     }
     base_url = 'http://fundgz.1234567.com.cn/js/%s.js'
     data = []
-    for code, extra in funds.iteritems():
+    for code in codes:
+        extra = funds.get(code)
         r = requests.get(base_url % str(code))
         detail = json.loads(r.content[8:-2])
         predict = float(detail.get('gsz'))
