@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>净值</title>
+    <style>
+        #all {margin-left: auto; margin-right: auto; width: 900px;}
+        .code {text-align: center; width: 60px;}
+        .name {text-align: left; width: 270px; padding-left: 10px;}
+        .day {text-align: center; width: 60px;}
+        .red {color: red;}
+        .orange {color: orange;}
+        .yellow {color: yellow;}
+    </style>
+</head>
+<body>
+<table id="all">
+    <tr>
+        <th>code</th>
+        <th>name</th>
+        <th>day</th>
+        <th>单位净值</th>
+        <th>日增长率</th>
+        <th>近一周</th>
+        <th>近一月</th>
+        <th>近三月</th>
+        <th>近六月</th>
+        <th>近一年</th>
+        <th>近两年</th>
+        <th>近三年</th>
+        <th>成立以来</th>
+    </tr>
+    {% for item in data %}
+        <tr>
+            <td class="code">{{ item.code }}</td>
+            <td class="name">{{ item.name }}</td>
+            <td class="day">{{ item.day }}</td>
+        {% if item.color.per_value == 1 %}
+            <td class="per_value red">{{ item.per_value }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="per_value orange">{{ item.per_value }}</td>
+        {% elif item.color.per_value == 3 %}
+            <td class="per_value yellow">{{ item.per_value }}</td>
+        {% else %}
+            <td class="per_value">{{ item.per_value }}</td>
+        {% endif %}
+
+        {% if item.color.week == 1 %}
+            <td class="week red">{{ item.week }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="week orange">{{ item.week }}</td>
+        {% else %}
+            <td class="week yellow">{{ item.week }}</td>
+        {% endif %}
+
+        {% if item.color.month == 1 %}
+            <td class="month red">{{ item.month }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="month orange">{{ item.month }}</td>
+        {% else %}
+            <td class="month yellow">{{ item.month }}</td>
+        {% endif %}
+
+        {% if item.color.three_month == 1 %}
+            <td class="three_month red">{{ item.three_month }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="three_month orange">{{ item.three_month }}</td>
+        {% else %}
+            <td class="three_month yellow">{{ item.three_month }}</td>
+        {% endif %}
+
+        {% if item.color.six_month == 1 %}
+            <td class="six_month red">{{ item.six_month }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="six_month orange">{{ item.six_month }}</td>
+        {% else %}
+            <td class="six_month yellow">{{ item.six_month }}</td>
+        {% endif %}
+
+        {% if item.color.year == 1 %}
+            <td class="year red">{{ item.year }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="year orange">{{ item.year }}</td>
+        {% else %}
+            <td class="year yellow">{{ item.year }}</td>
+        {% endif %}
+
+        {% if item.color.two_year == 1 %}
+            <td class="two_year red">{{ item.two_year }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="two_year orange">{{ item.two_year }}</td>
+        {% else %}
+            <td class="two_year yellow">{{ item.two_year }}</td>
+        {% endif %}
+
+        {% if item.color.three_year == 1 %}
+            <td class="three_year red">{{ item.three_year }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="three_year orange">{{ item.three_year }}</td>
+        {% else %}
+            <td class="three_year yellow">{{ item.three_year }}</td>
+        {% endif %}
+
+        {% if item.color.total == 1 %}
+            <td class="total red">{{ item.total }}</td>
+        {% elif item.color.per_value == 2 %}
+            <td class="total orange">{{ item.total }}</td>
+        {% else %}
+            <td class="total yellow">{{ item.total }}</td>
+        {% endif %}
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
