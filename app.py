@@ -2,9 +2,9 @@
 
 from flask import Flask, render_template
 
-from config import HTTP_HOST, HTTP_PORT, DEBUG
+from apollo.config import HTTP_HOST, HTTP_PORT, DEBUG
 
-from views.api.east.items import bp
+from apollo.views.api.east.items import bp
 
 app = Flask(__name__, template_folder='templates')
 app.register_blueprint(bp)
