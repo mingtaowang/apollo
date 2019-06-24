@@ -6,7 +6,7 @@ from apollo.config import HTTP_HOST, HTTP_PORT, DEBUG
 
 from apollo.views.api.east.items import bp
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='apollo/templates')
 app.register_blueprint(bp)
 
 
