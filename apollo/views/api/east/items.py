@@ -9,6 +9,8 @@ from flask import Blueprint, render_template
 
 from apollo.libs.db.store import db_mongo as db
 
+from apollo.views.api.east.consts import RANK_TOPS
+
 bp = Blueprint('items', __name__, url_prefix='/items')
 
 
@@ -99,8 +101,13 @@ def show_items():
         data = get_color(data, items, fields, sort=field)
     return_list = []
     for key, value in data.items():
+        selected = 0
+        for field in fields:
+            if value.get('color', {}).get(field, 0) in [1, 2, 3]:
+                selected += 1
+        value['selected'] = selected
         return_list.append(value)
-    return_list.sort(key=lambda l: l["one_day"], reverse=True)
+    return_list.sort(key=lambda l: l["selected"], reverse=True)
     return render_template('east/statistics.html', data=return_list)
 
 
@@ -110,9 +117,9 @@ def get_color(data, items, fields, sort='one_day'):
         default_data = data.setdefault(item.get('code'), item)
         default_color = default_data.setdefault('color', colors)
         if index < 10:
-            default_color[sort] = 1
+            default_color[sort] = RANK_TOPS.FIRST
         elif 10 <= index < 20:
-            default_color[sort] = 2
+            default_color[sort] = RANK_TOPS.SECOND
         else:
-            default_color[sort] = 3
+            default_color[sort] = RANK_TOPS.THIRD
     return data
