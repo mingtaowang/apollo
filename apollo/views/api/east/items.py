@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import time
 import datetime
 
 import json
 import requests
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
-from apollo.libs.db.store import db_mongo as db
+from apollo.libs.db.store import db_mongo as db, r
+from apollo.utils.serialization import jsonify_with_data
 
-from apollo.views.api.east.consts import RANK_TOPS
+from apollo.views.api.east.consts import RANK_TOPS, FILTER_AWAY, ACTION
+from apollo.views.api.east.redis_key import RECORDS
 
 bp = Blueprint('items', __name__, url_prefix='/items')
 
@@ -93,22 +96,57 @@ def get_useful_items():
 
 @bp.route('/statistics')
 def show_items():
+    records = r.get(RECORDS)
+    if records:
+        records = json.loads(records).get('records')
+    else:
+        records = make_contents()
+        r.set(RECORDS, json.dumps({'records': records}))
+    return render_template('east/statistics.html', data=records)
+
+
+@bp.route('/<string:id>', methods=['PUT'])
+def modify_item(id):
+    params = request.json
+    action = params.get('action')
+    little = db.snowball.littles.find({'code': id})
+    if action == ACTION.SHOW and not little:
+        db.snowball.littles.insert({'code': id, 'state': ACTION.HIDE,
+                                    'create_time': int(time.time()), 'update_time': int(time.time())})
+    else:
+        db.snowball.littles.update({'code': id},
+                                   {'$set': {'state': ACTION.HIDE, 'update_time': int(time.time())}})
+    records = make_contents()
+    r.set(RECORDS, json.dumps({'records': records}))
+    return jsonify_with_data(201)
+
+
+def make_contents():
     data = {}
     fields = ['one_day', 'week', 'month', 'three_month', 'six_month', 'year', 'two_year', 'three_year',
               'total']
     for field in fields:
         items = db.snowball.easts.find().limit(30).sort(field, -1)
         data = get_color(data, items, fields, sort=field)
-    return_list = []
+
+    codes = data.keys()
+    result = db.snowball.littles.find({'code': {'$in': codes}}, {'code': 1})
+    contents = []
+    littles = []
     for key, value in data.items():
         selected = 0
         for field in fields:
             if value.get('color', {}).get(field, 0) in [1, 2, 3]:
                 selected += 1
-        value['selected'] = selected
-        return_list.append(value)
-    return_list.sort(key=lambda l: l["selected"], reverse=True)
-    return render_template('east/statistics.html', data=return_list)
+        value.pop('_id')
+        if value.get('state') == ACTION.HIDE:
+            away = ACTION.SHOW
+        else:
+            away = ACTION.HIDE
+        value.update(selected=selected, away=away)
+        contents.append(value)
+    contents.sort(key=lambda l: l["selected"], reverse=True)
+    return contents
 
 
 def get_color(data, items, fields, sort='one_day'):

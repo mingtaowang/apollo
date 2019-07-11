@@ -7,7 +7,7 @@
         #head {
             position: fixed;
             top: 0;
-            margin: auto;
+            margin: 0 auto;
             left: 0;
             right: 0;
             width: 1200px;
@@ -52,7 +52,7 @@
         }
 
         .code {
-            width: 6.5%;
+            width: 6%;
         }
 
         .name {
@@ -64,43 +64,58 @@
         }
 
         .value {
-            width: 6.5%;
+            width: 6%;
         }
 
         .daily {
-            width: 6.5%;
+            width: 6%;
         }
 
         .week {
-            width: 6.5%;
+            width: 6%;
         }
 
         .month {
-            width: 6.5%;
+            width: 6%;
         }
 
         .threeMonth {
-            width: 6.5%;
+            width: 6%;
         }
 
         .sixMonth {
-            width: 6.5%;
+            width: 6%;
         }
 
         .year {
-            width: 6.5%;
+            width: 6%;
         }
 
         .twoYear {
-            width: 6.5%;
+            width: 6%;
         }
 
         .threeYear {
-            width: 6.5%;
+            width: 6%;
         }
 
         .total {
-            width: 6.5%;
+            width: 6%;
+        }
+
+        .operate {
+            width: 5.5%;
+            cursor: pointer;
+        }
+
+        .hide {
+            background: gray;
+            text-align: center;
+        }
+
+        .show {
+            background: #02a1c9;
+            text-align: center;
         }
     </style>
 </head>
@@ -120,13 +135,16 @@
         <th class="twoYear">近两年</th>
         <th class="threeYear">近三年</th>
         <th class="total">成立以来</th>
+        <th class="operate">操作</th>
     </tr>
 </table>
 <table id="all">
     {% for item in data %}
         <tr style="overflow: scroll;">
             <td class="code">{{ item.code }}</td>
-            <td class="name">{{ item.name }}</td>
+            <td class="name">
+                <a href='http://fund.eastmoney.com/{{ item.code }}.html?spm=search' target="_blank">{{ item.name }}</a>
+            </td>
             <td class="day">{{ item.day }}</td>
             <td class="value">{{ item.per_value }}</td>
 
@@ -219,8 +237,29 @@
             {% else %}
                 <td class="total">{{ item.total }}</td>
             {% endif %}
+
+            {% if item.away == 1 %}
+                <td class="operate"><div class="hide" onclick="modify({{ item.code }}, 1)">show</div></td>
+            {% else %}
+                <td class="operate"><div class="show" onclick="modify({{ item.code }}, 0)">hide</div></td>
+            {% endif %}
         </tr>
     {% endfor %}
 </table>
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
 </body>
+<script type="text/javascript">
+    function modify(code, action) {
+        $.ajax({
+            url: '/items/' + code,
+            type: 'put',
+            datType: "json",
+            contentType: "application/json",
+            data: JSON.stringify({action: action}),
+            success: function (result) {
+                location.reload();
+            }
+        });
+    }
+</script>
 </html>
