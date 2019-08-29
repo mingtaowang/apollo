@@ -101,7 +101,7 @@ def show_items():
         records = json.loads(records).get('records')
     else:
         records = make_contents()
-        r.set(RECORDS, json.dumps({'records': records}))
+        r.set(RECORDS, json.dumps({'records': records}), ex=12 * 3600)
     return render_template('east/statistics.html', data=records)
 
 
@@ -110,14 +110,14 @@ def modify_item(id):
     params = request.json
     action = params.get('action')
     little = db.snowball.littles.find({'code': id})
-    if action == ACTION.SHOW and not little:
-        db.snowball.littles.insert({'code': id, 'state': ACTION.HIDE,
+    if not little:
+        db.snowball.littles.insert({'code': id, 'state': action,
                                     'create_time': int(time.time()), 'update_time': int(time.time())})
     else:
         db.snowball.littles.update({'code': id},
-                                   {'$set': {'state': ACTION.HIDE, 'update_time': int(time.time())}})
+                                   {'$set': {'state': action, 'update_time': int(time.time())}})
     records = make_contents()
-    r.set(RECORDS, json.dumps({'records': records}))
+    r.set(RECORDS, json.dumps({'records': records}), ex=12 * 3600)
     return jsonify_with_data(201)
 
 
@@ -130,21 +130,21 @@ def make_contents():
         data = get_color(data, items, fields, sort=field)
 
     codes = data.keys()
-    result = db.snowball.littles.find({'code': {'$in': codes}}, {'code': 1})
+    result = db.snowball.littles.find({'code': {'$in': codes}}, {'code': 1, 'state': 1})
+    littles = {item.get('code'): item.get('state') for item in result}
     contents = []
-    littles = []
-    for key, value in data.items():
+    for k, v in data.items():
         selected = 0
         for field in fields:
-            if value.get('color', {}).get(field, 0) in [1, 2, 3]:
+            if v.get('color', {}).get(field, 0) in [1, 2, 3]:
                 selected += 1
-        value.pop('_id')
-        if value.get('state') == ACTION.HIDE:
+        v.pop('_id')
+        if littles.get(k, ACTION.SHOW) == ACTION.HIDE:
             away = ACTION.SHOW
         else:
             away = ACTION.HIDE
-        value.update(selected=selected, away=away)
-        contents.append(value)
+        v.update(selected=selected, away=away)
+        contents.append(v)
     contents.sort(key=lambda l: l["selected"], reverse=True)
     return contents
 
